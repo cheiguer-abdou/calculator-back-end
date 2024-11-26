@@ -1,0 +1,52 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# dotenv environment variables file
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Serverless directories
+.serverless/
+.webpack/
+
+# IDE and editor folders
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build output
+dist/
+build/
+out/
+
+# Temporary files
+.tmp/
+.temp/
+
+# Mac system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Compiled binary addons
+build/Release
+
+
+# Typescript v1 declaration files
+typings/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+
+
+# Serverless
+.serverless

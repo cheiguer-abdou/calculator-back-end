@@ -49,4 +49,6 @@ typings/
 
 
 # Serverless
-.serverless
+.serverless# Webpack build output
+.webpack/
+.webpack/**

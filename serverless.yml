@@ -1,0 +1,172 @@
+service: math-operations-api
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stage: ${opt:stage, 'prod'}
+  region: us-east-1
+  environment:
+    OPERATIONS_TABLE: operations
+    RECORDS_TABLE: records
+    USER_POOL_ID:
+      Ref: CognitoUserPool
+
+  iam:
+    role:
+      managedPolicies:
+        - "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+      statements:
+        - Effect: Allow
+          Action:
+            - cognito-idp:AdminGetUser
+            - cognito-idp:AdminUpdateUserAttributes
+          Resource:
+            Fn::GetAtt: [CognitoUserPool, Arn]
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+functions:
+  addition:
+    handler: functions/addition.handler
+    events:
+      - http:
+          path: addition
+          method: post
+          cors: true
+
+  division:
+    handler: functions/division.handler
+    events:
+      - http:
+          path: division
+          method: post
+          cors: true
+
+  multiplication:
+    handler: functions/multiplication.handler
+    events:
+      - http:
+          path: multiplication
+          method: post
+          cors: true
+
+  squareRoot:
+    handler: functions/square-root.handler
+    events:
+      - http:
+          path: square-root
+          method: post
+          cors: true
+
+  subtraction:
+    handler: functions/substraction.handler
+    events:
+      - http:
+          path: substraction
+          method: post
+          cors: true
+
+  randomString:
+    handler: functions/randomString.handler
+    events:
+      - http:
+          path: random-string
+          method: post
+          cors: true
+
+  records:
+    handler: functions/records.handler
+    events:
+      - http:
+          path: records
+          method: get
+          cors: true
+
+  softDelete:
+    handler: functions/soft-delete.handler
+    events:
+      - http:
+          path: soft-delete/{id}
+          method: put
+          cors: true
+
+  initializeBalance:
+    handler: functions/initialize-balance.handler
+
+resources:
+  Resources:
+    # DynamoDB Tables (keep existing)
+    RecordsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.RECORDS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: user_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: user_id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    OperationsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.OPERATIONS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: type
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: type
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    # Cognito Resources
+    CognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: ${self:service}-user-pool
+        UsernameAttributes:
+          - email
+        AutoVerifiedAttributes:
+          - email
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+            RequireUppercase: true
+            RequireLowercase: true
+            RequireNumbers: true
+            RequireSymbols: true
+
+    CognitoUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: ${self:service}-user-pool-client
+        UserPoolId:
+          Ref: CognitoUserPool
+        GenerateSecret: false
+        SupportedIdentityProviders:
+          - COGNITO
+        AllowedOAuthFlows:
+          - implicit
+        AllowedOAuthScopes:
+          - email
+          - openid
+          - profile
+        CallbackURLs:
+          - http://localhost:3000/callback
+        LogoutURLs:
+          - http://localhost:3000/logout
+
+package:
+  individually: true
+  excludeDevDependencies: false

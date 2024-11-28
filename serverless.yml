@@ -3,7 +3,7 @@ service: math-operations-api
 provider:
   name: aws
   runtime: nodejs20.x
-  stage: ${opt:stage, 'prod'}
+  stage: ${opt:stage, 'v1'}
   region: us-east-1
   environment:
     OPERATIONS_TABLE: operations

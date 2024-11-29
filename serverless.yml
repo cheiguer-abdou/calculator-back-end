@@ -97,7 +97,7 @@ functions:
 
 resources:
   Resources:
-    # DynamoDB Tables (keep existing)
+    # DynamoDB Tables
     RecordsTable:
       Type: AWS::DynamoDB::Table
       Properties:
